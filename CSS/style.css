@@ -1,0 +1,58 @@
+body {
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  background-color: rgb(224, 202, 231);
+}
+
+.comment {
+  position: relative;
+}
+
+h1 {
+  color: rgb(135, 71, 159);
+}
+
+.comment .row {
+  background-color: white;
+  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+}
+
+.reply {
+  color: rgb(135, 71, 159);
+  top: 10px;
+}
+
+.create {
+  color: rgb(118, 109, 121);
+}
+
+.vote {
+  background-color: rgb(224, 202, 231);
+}
+.vote span,
+.vote button {
+  color: rgb(135, 71, 159);
+}
+
+@media (min-width: 768px) {
+  .vote {
+    width: initial;
+  }
+}
+
+.text {
+  font-size: 20px;
+  color: rgb(64, 64, 64);
+}
+
+#mainReplyBtn {
+  background-color: rgb(135, 71, 159);
+  color: white;
+}
+
+.form-control:focus {
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  border-color: rgb(135, 71, 159);
+  outline: 0;
+  box-shadow: 0 0 4px 1px rgb(135, 71, 159);
+}
