@@ -1,18 +1,9 @@
-/* 
-------------- ATTENTION -------------
-IF You will add a condition to check if the data is exist in local storage 
-    true: Load it from local storage
-ELSE 
-    false: fetch it from JSON
-
-*/
-
 const containerForComments = document.getElementById("containerForComments");
 const newCommentText = document.getElementById("newCommentText");
 const mainReplyBtn = document.getElementById("mainReplyBtn");
 
 let url = "../data.json";
-let index = 0;
+let index;
 let _score, _type, _src, _name, _date, _text;
 let newComment = "";
 let scores;
@@ -26,41 +17,48 @@ async function fetchComments(url) {
     localStorage.setItem("comments", JSON.stringify(com["comments"]));
   });
 }
-fetchComments(url);
 
-// Load comment on the page
-window.addEventListener("load", loadComments);
+// Onload
+window.addEventListener("load", () => {
+  // * Check if local storage has the comments
+  if (localStorage.getItem("comments")) {
+    // ! Get data from local storage
+    let commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
+    loadComments(commentsFromLocalStorage);
+  } else {
+    // ! Fecth data from JSON
+    fetchComments(url);
+    let commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
+    loadComments(commentsFromLocalStorage);
+  }
+});
 
-function loadComments() {
+// Function : Render comments in the page
+function loadComments(commentsFromLocalStorage) {
+  index = 0
   let allComments = document.createElement("div");
   allComments.setAttribute("id", "allComments");
 
-  // Add comments to allcomments
-  if (localStorage.getItem("comments")) {
-    // Comments from localStorage
-    let commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
+  // Loop : Main comments
+  for (var c in commentsFromLocalStorage) {
+    _type = true;
+    _name = commentsFromLocalStorage[c].user["username"];
+    _date = commentsFromLocalStorage[c]["createdAt"];
+    _text = commentsFromLocalStorage[c]["content"];
+    _score = commentsFromLocalStorage[c]["score"];
+    _src = `images/avatars/image-${_name}.webp`;
+    allComments.appendChild(createMainComment(index++, _type, _score, _src, _name, _date, _text));
 
-    // Loop : Main comments
-    for (var c in commentsFromLocalStorage) {
-      _type = true;
-      _name = commentsFromLocalStorage[c].user["username"];
-      _date = commentsFromLocalStorage[c]["createdAt"];
-      _text = commentsFromLocalStorage[c]["content"];
-      _score = commentsFromLocalStorage[c]["score"];
+    // Loop : Replies "sub-comments"
+    let replies = commentsFromLocalStorage[c]["replies"];
+    for (var r in replies) {
+      _type = false;
+      _name = replies[r].user["username"];
+      _date = replies[r]["createdAt"];
+      _text = replies[r]["content"];
+      _score = replies[r]["score"];
       _src = `images/avatars/image-${_name}.webp`;
       allComments.appendChild(createMainComment(index++, _type, _score, _src, _name, _date, _text));
-
-      // Loop : Replies "sub-comments"
-      let replies = commentsFromLocalStorage[c]["replies"];
-      for (var r in replies) {
-        _type = false;
-        _name = replies[r].user["username"];
-        _date = replies[r]["createdAt"];
-        _text = replies[r]["content"];
-        _score = replies[r]["score"];
-        _src = `images/avatars/image-${_name}.webp`;
-        allComments.appendChild(createMainComment(index++, _type, _score, _src, _name, _date, _text));
-      }
     }
   }
 
@@ -111,13 +109,12 @@ function createMainComment(id, type, score, src, name, date, text) {
 //   // e.target.value = "";
 // });
 
-
 // Function : Add comment to page
 mainReplyBtn.addEventListener("click", addCommentToPage);
 function addCommentToPage() {
   if (newCommentText.value.trim() != "") {
     let objComment = {
-      id: index,
+      id: index++,
       content: newCommentText.value,
       createdAt: "Now",
       score: 0,
@@ -134,7 +131,9 @@ function addCommentToPage() {
 
     localStorage.setItem("comments", JSON.stringify(updatedComments));
 
-    loadComments();
+    let commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
+
+    loadComments(commentsFromLocalStorage);
   }
 }
 
@@ -153,6 +152,28 @@ function updateScores() {
   downBtn.forEach((b) => b.addEventListener("click", rankComment));
 }
 
+function updateScoreInLocalStorage(id, operator) {
+  let cfls = JSON.parse(localStorage.getItem("comments"));
+  for (var c = 0; c < cfls.length; c++) {
+    if (cfls[c].id == id) {
+      console.log(cfls[c])
+      if (operator == "+") cfls[c].score = cfls[c].score + 1;
+      else if (operator == "-") cfls[c].score = cfls[c].score - 1;
+      localStorage.setItem("comments", JSON.stringify(cfls));
+      break;
+    } else {
+      for (var s = 0; s < cfls[c]["replies"].length; s++) {
+        if (cfls[c]["replies"][s].id == id) {
+          if (operator == "+") cfls[c]["replies"][s].score = cfls[c]["replies"][s].score + 1;
+          else if (operator == "-") cfls[c]["replies"][s].score = cfls[c]["replies"][s].score - 1;
+          localStorage.setItem("comments", JSON.stringify(cfls));
+          break;
+        }
+      }
+    }
+  }
+}
+
 // Function : Update rank comment
 function rankComment(e) {
   let arrScores = Array.from(scores);
@@ -162,8 +183,10 @@ function rankComment(e) {
     if (e.target.id == c.id) {
       if (e.target.innerText == "+") {
         c.dataset.score = +c.dataset.score + 1;
+        updateScoreInLocalStorage(c.id, "+");
       } else {
         c.dataset.score == 0 ? (c.dataset.score = 0) : (c.dataset.score = +c.dataset.score - 1);
+        updateScoreInLocalStorage(c.id, "-");
       }
       sortComments();
     }
