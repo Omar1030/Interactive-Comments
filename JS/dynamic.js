@@ -8,7 +8,6 @@ ELSE
 */
 
 const containerForComments = document.getElementById("containerForComments");
-
 const newCommentText = document.getElementById("newCommentText");
 const mainReplyBtn = document.getElementById("mainReplyBtn");
 
@@ -84,6 +83,7 @@ function createMainComment(id, type, score, src, name, date, text) {
   commentArticle.style.maxWidth = `${type ? "770px" : "660px"}`;
   commentArticle.innerHTML = ` 
       <button id="${id}" class="reply btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
+      <div id="options" class="position-absolute d-flex gap-3"><i class="fa-solid fa-pen-to-square"></i><i class="fa-solid fa-trash"></i></div>
       <div class="row py-4 px-2 rounded-3">
         <div class="col-12 col-md-1 order-2 order-md-1 text-center pt-3 pt-md-0">
           <article class="vote d-flex flex-row flex-md-column justify-content-evenly align-items-center gap-4 rounded-4 fw-bold text-light">
@@ -110,6 +110,7 @@ function createMainComment(id, type, score, src, name, date, text) {
 //   newComment = e.target.value;
 //   // e.target.value = "";
 // });
+
 
 // Function : Add comment to page
 mainReplyBtn.addEventListener("click", addCommentToPage);
