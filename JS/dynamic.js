@@ -221,12 +221,23 @@ function rankComment(e) {
 
 // ! Function : Delete the comment
 function deleteComment(e) {
-  e.target.closest(".comment").remove()
+  e.target.closest(".comment").remove();
   let targetId = e.target.closest(".comment").id;
   let cfls = JSON.parse(localStorage.getItem("comments"));
   cfls.forEach((mc, i) => {
     if (targetId == mc.id) {
       cfls.splice(i, 1);
+      let respliesIds = [];
+      mc["replies"].forEach((rid) => {
+        respliesIds.push(rid.id);
+      });
+      Array.from(allComments.children).forEach((ac) => {
+        respliesIds.forEach((id) => {
+          if (ac.id == id) {
+            ac.remove();
+          }
+        });
+      });
     } else {
       mc["replies"].forEach((sc, i) => {
         if (targetId == sc.id) {
