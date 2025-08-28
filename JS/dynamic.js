@@ -9,7 +9,7 @@ let newComment = "";
 let scores;
 let comments;
 
-// Function : Fetch Comments & Store it in local storage
+// ! Function : Fetch Comments & Store it in local storage
 async function fetchComments(url) {
   let data = await fetch(url);
   let response = data.json();
@@ -18,7 +18,7 @@ async function fetchComments(url) {
   });
 }
 
-// Onload
+// ! Load Page
 window.addEventListener("load", () => {
   // * Check if local storage has the comments
   if (localStorage.getItem("comments")) {
@@ -33,9 +33,9 @@ window.addEventListener("load", () => {
   }
 });
 
-// Function : Render comments in the page
+// ! Function : Render comments in the page
 function loadComments(commentsFromLocalStorage) {
-  index = 0
+  index = 0;
   let allComments = document.createElement("div");
   allComments.setAttribute("id", "allComments");
 
@@ -65,14 +65,14 @@ function loadComments(commentsFromLocalStorage) {
   // Reload comments
   containerForComments.replaceChildren(allComments);
 
-  // Update scores
-  updateScores();
+  // Actions : Update - Delete
+  actions();
 
   // Sort scores
   sortComments();
 }
 
-// Function : Create Comment
+// ! Function : Create Comment
 function createMainComment(id, type, score, src, name, date, text) {
   let commentArticle = document.createElement("articel");
   commentArticle.dataset.score = score;
@@ -81,7 +81,10 @@ function createMainComment(id, type, score, src, name, date, text) {
   commentArticle.style.maxWidth = `${type ? "770px" : "660px"}`;
   commentArticle.innerHTML = ` 
       <button id="${id}" class="reply btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
-      <div id="options" class="position-absolute d-flex gap-3"><i class="fa-solid fa-pen-to-square"></i><i class="fa-solid fa-trash"></i></div>
+      <div id="options" class="position-absolute d-flex gap-3">
+        <div class="editBtn"><i class="fa-solid fa-pen-to-square"></i></div>
+        <div class="deleteBtn"><i class="fa-solid fa-trash"></i></div>
+      </div>
       <div class="row py-4 px-2 rounded-3">
         <div class="col-12 col-md-1 order-2 order-md-1 text-center pt-3 pt-md-0">
           <article class="vote d-flex flex-row flex-md-column justify-content-evenly align-items-center gap-4 rounded-4 fw-bold text-light">
@@ -103,7 +106,26 @@ function createMainComment(id, type, score, src, name, date, text) {
   return commentArticle;
 }
 
-// Function : Get text of new comment
+// ! Function : Actions > Update - Delete
+function actions() {
+  // UpBtn - downBtn - scores - comments - deleteBtn
+  let upBtn = document.querySelectorAll(".upBtn");
+  let downBtn = document.querySelectorAll(".downBtn");
+  scores = document.querySelectorAll(".score");
+  comments = document.querySelectorAll(".comment");
+  let deleteBtn = document.querySelectorAll(".deleteBtn");
+
+  // Up comment
+  upBtn.forEach((b) => b.addEventListener("click", rankComment));
+
+  // Down comment
+  downBtn.forEach((b) => b.addEventListener("click", rankComment));
+
+  // Delete comment
+  deleteBtn.forEach((b) => b.addEventListener("click", deleteComment));
+}
+
+// ! Function : Add new comment
 // newCommentText.addEventListener("change", (e) => {
 //   newComment = e.target.value;
 //   // e.target.value = "";
@@ -137,26 +159,12 @@ function addCommentToPage() {
   }
 }
 
-// Function : Update scores
-function updateScores() {
-  // UpBtn - downBtn - scores - comments
-  let upBtn = document.querySelectorAll(".upBtn");
-  let downBtn = document.querySelectorAll(".downBtn");
-  scores = document.querySelectorAll(".score");
-  comments = document.querySelectorAll(".comment");
-
-  // Up comment
-  upBtn.forEach((b) => b.addEventListener("click", rankComment));
-
-  // Down comment
-  downBtn.forEach((b) => b.addEventListener("click", rankComment));
-}
-
+// ! Function : Update scores in local storage
 function updateScoreInLocalStorage(id, operator) {
   let cfls = JSON.parse(localStorage.getItem("comments"));
   for (var c = 0; c < cfls.length; c++) {
     if (cfls[c].id == id) {
-      console.log(cfls[c])
+      console.log(cfls[c]);
       if (operator == "+") cfls[c].score = cfls[c].score + 1;
       else if (operator == "-") cfls[c].score = cfls[c].score - 1;
       localStorage.setItem("comments", JSON.stringify(cfls));
@@ -174,7 +182,14 @@ function updateScoreInLocalStorage(id, operator) {
   }
 }
 
-// Function : Update rank comment
+// ! Function : Sort comments
+function sortComments() {
+  let commentArticles = Array.from(allComments.children);
+  commentArticles.sort((a, b) => b.dataset.score - a.dataset.score);
+  commentArticles.forEach((c) => allComments.appendChild(c));
+}
+
+// ! Function : Update the rank of comment
 function rankComment(e) {
   let arrScores = Array.from(scores);
   let cs = Array.from(comments);
@@ -203,9 +218,21 @@ function rankComment(e) {
   });
 }
 
-// Function : Sort comments
-function sortComments() {
-  let commentArticles = Array.from(allComments.children);
-  commentArticles.sort((a, b) => b.dataset.score - a.dataset.score);
-  commentArticles.forEach((c) => allComments.appendChild(c));
+// ! Function : Delete the comment
+function deleteComment(e) {
+  let targetId = e.target.closest(".comment").id;
+
+  let cfls = JSON.parse(localStorage.getItem("comments"));
+  cfls.forEach((mc, i) => {
+    if (targetId == mc.id) {
+      cfls.splice(i, 1);
+    } else {
+      mc["replies"].forEach((sc, i) => {
+        if (targetId == sc.id) {
+          mc["replies"].splice(i, 1);
+        }
+      });
+    }
+  });
+  localStorage.setItem("comments", JSON.stringify(cfls))
 }
