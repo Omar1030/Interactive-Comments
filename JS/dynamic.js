@@ -3,7 +3,7 @@ const newCommentText = document.getElementById("newCommentText");
 const mainReplyBtn = document.getElementById("mainReplyBtn");
 
 let url = "../data.json";
-let index;
+let lastIndex = 4;
 let _score, _type, _src, _name, _date, _text;
 let newComment = "";
 let scores;
@@ -21,7 +21,7 @@ async function fetchComments(url) {
 // ! Load Page
 window.addEventListener("load", () => {
   // * Check if local storage has the comments
-  if (localStorage.getItem("comments")) {
+  if (localStorage.getItem("comments") && JSON.parse(localStorage.getItem("comments")).length != 0) {
     // ! Get data from local storage
     let commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
     loadComments(commentsFromLocalStorage);
@@ -35,30 +35,31 @@ window.addEventListener("load", () => {
 
 // ! Function : Render comments in the page
 function loadComments(commentsFromLocalStorage) {
-  index = 0;
   let allComments = document.createElement("div");
   allComments.setAttribute("id", "allComments");
 
   // Loop : Main comments
   for (var c in commentsFromLocalStorage) {
     _type = true;
+    _id = commentsFromLocalStorage[c].id;
     _name = commentsFromLocalStorage[c].user["username"];
     _date = commentsFromLocalStorage[c]["createdAt"];
     _text = commentsFromLocalStorage[c]["content"];
     _score = commentsFromLocalStorage[c]["score"];
     _src = `images/avatars/image-${_name}.webp`;
-    allComments.appendChild(createMainComment(index++, _type, _score, _src, _name, _date, _text));
+    allComments.appendChild(createMainComment(_id, _type, _score, _src, _name, _date, _text));
 
     // Loop : Replies "sub-comments"
     let replies = commentsFromLocalStorage[c]["replies"];
     for (var r in replies) {
       _type = false;
+      _id = replies[r].id;
       _name = replies[r].user["username"];
       _date = replies[r]["createdAt"];
       _text = replies[r]["content"];
       _score = replies[r]["score"];
       _src = `images/avatars/image-${_name}.webp`;
-      allComments.appendChild(createMainComment(index++, _type, _score, _src, _name, _date, _text));
+      allComments.appendChild(createMainComment(_id, _type, _score, _src, _name, _date, _text));
     }
   }
 
@@ -136,7 +137,7 @@ mainReplyBtn.addEventListener("click", addCommentToPage);
 function addCommentToPage() {
   if (newCommentText.value.trim() != "") {
     let objComment = {
-      id: index++,
+      id: lastIndex++,
       content: newCommentText.value,
       createdAt: "Now",
       score: 0,
@@ -220,8 +221,8 @@ function rankComment(e) {
 
 // ! Function : Delete the comment
 function deleteComment(e) {
+  e.target.closest(".comment").remove()
   let targetId = e.target.closest(".comment").id;
-
   let cfls = JSON.parse(localStorage.getItem("comments"));
   cfls.forEach((mc, i) => {
     if (targetId == mc.id) {
@@ -234,5 +235,5 @@ function deleteComment(e) {
       });
     }
   });
-  localStorage.setItem("comments", JSON.stringify(cfls))
+  localStorage.setItem("comments", JSON.stringify(cfls));
 }
