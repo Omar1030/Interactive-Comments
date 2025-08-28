@@ -14,14 +14,25 @@
   <link rel="stylesheet" href="CSS/style.css">
 </head>
 
-<body>
-  <div id="container" class="container my-4" style="max-width: 800px;">
-    <h1 class="bg-light text-center fw-bold rounded-3 px-3 py-4 mb-4">Interactive Comments  :)</h1>
+<body class="position-relative">
+  <div id="overlay" class="position-absolute w-100 h-100 z-2 d-none"></div>
+  <div id="container" class="container position-relative" style="max-width: 800px;">
+    <h1 class="bg-light text-center fw-bold rounded-3 px-3 py-4 mb-4">Interactive Comments :)</h1>
     <div id="containerForComments" class="container"></div>
     <div id="mainReply" class="d-flex gap-3 bg-light px-3 py-4 rounded-3 75 mt-4">
       <img src="images/avatars/image-juliusomo.webp" alt="person">
       <input type="text" placeholder="Add a comment..." class="form-control" id="newCommentText">
       <button id="mainReplyBtn" class="px-3 rounded-3 my-auto">SEND</button>
+    </div>
+    <div id="model-delete" class="position-absolute top-50 start-50 bg-light p-4 rounded-3  z-3 d-none">
+      <article id="box">
+        <h3>Delete Comment</h3>
+        <p>Are you sure you want to delete this comment? This will remove the comment and it's replies.</p>
+        <article id="deleteBtns" class="text-center">
+          <button id="cancelBtn" class="btn fw-bolder text-light px-4 py-2 rounded-3 bg-secondary me-2">No, Cancel</button>
+          <button id="deleteBtn" class="btn fw-bolder text-light px-4 py-2 rounded-3 bg-danger">Yes, Delete</button>
+        </article>
+      </article>
     </div>
   </div>
 

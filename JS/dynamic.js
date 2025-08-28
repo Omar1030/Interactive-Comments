@@ -1,13 +1,21 @@
+// ? DOM Elements
 const containerForComments = document.getElementById("containerForComments");
 const newCommentText = document.getElementById("newCommentText");
 const mainReplyBtn = document.getElementById("mainReplyBtn");
+const modelDelete = document.getElementById("model-delete");
+const overlay = document.getElementById("overlay");
+const deleteBtns = document.getElementById("deleteBtns");
+const cancelBtn = document.getElementById("cancelBtn");
+const deleteBtn = document.getElementById("deleteBtn");
 
+// ? Variables
 let url = "../data.json";
 let lastIndex = 4;
 let _score, _type, _src, _name, _date, _text;
 let newComment = "";
 let scores;
 let comments;
+let tagetIconTrash;
 
 // ! Function : Fetch Comments & Store it in local storage
 async function fetchComments(url) {
@@ -83,8 +91,8 @@ function createMainComment(id, type, score, src, name, date, text) {
   commentArticle.innerHTML = ` 
       <button id="${id}" class="reply btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
       <div id="options" class="position-absolute d-flex gap-3">
-        <div class="editBtn"><i class="fa-solid fa-pen-to-square"></i></div>
-        <div class="deleteBtn"><i class="fa-solid fa-trash"></i></div>
+        <div class="editIcon"><i class="fa-solid fa-pen-to-square"></i></div>
+        <div class="deleteIcon"><i class="fa-solid fa-trash"></i></div>
       </div>
       <div class="row py-4 px-2 rounded-3">
         <div class="col-12 col-md-1 order-2 order-md-1 text-center pt-3 pt-md-0">
@@ -114,7 +122,7 @@ function actions() {
   let downBtn = document.querySelectorAll(".downBtn");
   scores = document.querySelectorAll(".score");
   comments = document.querySelectorAll(".comment");
-  let deleteBtn = document.querySelectorAll(".deleteBtn");
+  let deleteIcon = document.querySelectorAll(".deleteIcon");
 
   // Up comment
   upBtn.forEach((b) => b.addEventListener("click", rankComment));
@@ -123,7 +131,7 @@ function actions() {
   downBtn.forEach((b) => b.addEventListener("click", rankComment));
 
   // Delete comment
-  deleteBtn.forEach((b) => b.addEventListener("click", deleteComment));
+  deleteIcon.forEach((b) => b.addEventListener("click", deleteComment));
 }
 
 // ! Function : Add new comment
@@ -165,7 +173,6 @@ function updateScoreInLocalStorage(id, operator) {
   let cfls = JSON.parse(localStorage.getItem("comments"));
   for (var c = 0; c < cfls.length; c++) {
     if (cfls[c].id == id) {
-      console.log(cfls[c]);
       if (operator == "+") cfls[c].score = cfls[c].score + 1;
       else if (operator == "-") cfls[c].score = cfls[c].score - 1;
       localStorage.setItem("comments", JSON.stringify(cfls));
@@ -219,10 +226,30 @@ function rankComment(e) {
   });
 }
 
-// ! Function : Delete the comment
+// ! Function : Check deletion of the comment
 function deleteComment(e) {
-  e.target.closest(".comment").remove();
-  let targetId = e.target.closest(".comment").id;
+  tagetIconTrash = e.target;
+  overlay.classList.remove("d-none");
+  modelDelete.classList.remove("d-none");
+  // Cancel
+  cancelBtn.addEventListener("click", cancelFun);
+  // Delete
+  deleteBtn.addEventListener("click", deleteFun);
+}
+
+// ! Function : Cancel the deletion
+function cancelFun() {
+  console.log("From cancel button");
+  overlay.classList.add("d-none");
+  modelDelete.classList.add("d-none");
+}
+
+// ! Function : Confirm the deletion
+function deleteFun() {
+  overlay.classList.add("d-none");
+  modelDelete.classList.add("d-none");
+  tagetIconTrash.closest(".comment").remove();
+  let targetId = tagetIconTrash.closest(".comment").id;
   let cfls = JSON.parse(localStorage.getItem("comments"));
   cfls.forEach((mc, i) => {
     if (targetId == mc.id) {
