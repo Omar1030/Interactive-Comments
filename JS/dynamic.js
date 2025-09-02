@@ -16,6 +16,7 @@ let newComment = "";
 let scores;
 let comments;
 let tagetIconTrash;
+let options;
 
 // ! Function : Fetch Comments & Store it in local storage
 async function fetchComments(url) {
@@ -90,8 +91,8 @@ function createMainComment(id, type, score, src, name, date, text) {
   commentArticle.style.maxWidth = `${type ? "770px" : "660px"}`;
   commentArticle.innerHTML = ` 
       <button id="${id}" class="reply btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
-      <div id="options" class="position-absolute d-flex gap-3">
-        <div class="editIcon"><i class="fa-solid fa-pen-to-square"></i></div>
+      <div id="option-${id}" class="options position-absolute d-flex gap-3">
+        <div id="${id}" class="editIcon"><i class="fa-solid fa-pen-to-square"></i></div>
         <div class="deleteIcon"><i class="fa-solid fa-trash"></i></div>
       </div>
       <div class="row py-4 px-2 rounded-3">
@@ -108,14 +109,14 @@ function createMainComment(id, type, score, src, name, date, text) {
             <span class="name fw-bolder">${name}</span>
             <span class="create">${date}</span>
           </div>
-          <div class="text mt-lg-3 mt-3">${text}</div>
+          <div id="text-${id}" class="text mt-lg-3 mt-3">${text}</div>
         </div>
       </div>`;
 
   return commentArticle;
 }
 
-// ! Function : Actions > Update - Delete
+// ! Function : Actions => Update - Delete - Edit
 function actions() {
   // UpBtn - downBtn - scores - comments - deleteBtn
   let upBtn = document.querySelectorAll(".upBtn");
@@ -123,6 +124,8 @@ function actions() {
   scores = document.querySelectorAll(".score");
   comments = document.querySelectorAll(".comment");
   let deleteIcon = document.querySelectorAll(".deleteIcon");
+  let editIcon = document.querySelectorAll(".editIcon");
+  options = document.querySelectorAll(".options");
 
   // Up comment
   upBtn.forEach((b) => b.addEventListener("click", rankComment));
@@ -132,6 +135,9 @@ function actions() {
 
   // Delete comment
   deleteIcon.forEach((b) => b.addEventListener("click", deleteComment));
+
+  // Edit comment
+  editIcon.forEach((b) => b.addEventListener("click", editComment));
 }
 
 // ! Function : Add new comment
@@ -150,7 +156,7 @@ function addCommentToPage() {
       createdAt: "Now",
       score: 0,
       user: {
-        username: "amyrobson",
+        username: "ss",
       },
       replies: [],
     };
@@ -168,6 +174,7 @@ function addCommentToPage() {
   }
 }
 
+// * Rank
 // ! Function : Update scores in local storage
 function updateScoreInLocalStorage(id, operator) {
   let cfls = JSON.parse(localStorage.getItem("comments"));
@@ -226,6 +233,7 @@ function rankComment(e) {
   });
 }
 
+// * Delete
 // ! Function : Check deletion of the comment
 function deleteComment(e) {
   tagetIconTrash = e.target;
@@ -274,4 +282,70 @@ function deleteFun() {
     }
   });
   localStorage.setItem("comments", JSON.stringify(cfls));
+}
+
+// * Edit
+// ! Function : Edit the comment
+function editComment() {
+  const textBox = document.getElementById(`text-${this.id}`);
+  const txt = textBox.innerText;
+  const option = document.getElementById(`option-${this.id}`);
+  textBox.innerHTML = `<textarea name="text" id="edit-text-${this.id}" class="edit-text">${txt}</textarea>`;
+  option.innerHTML = `<button class="update-btn btn fw-bolder" onclick="updateComment(${this.id})">Update</button>`;
+}
+
+// ! Function : Update the comment
+function updateComment(id) {
+  const textBox = document.getElementById(`edit-text-${id}`);
+  const txt = textBox.value;
+  const baseText = document.getElementById(`text-${id}`);
+  baseText.innerHTML = txt;
+  const option = document.getElementById(`option-${id}`);
+  option.innerHTML = `<div id="${id}" class="editIcon"><i class="fa-solid fa-pen-to-square"></i></div>
+        <div class="deleteIcon"><i class="fa-solid fa-trash"></i></div>`;
+  updateLocalStorage(id);
+}
+
+// ! Function : Update LocalStorage after update the comment
+function updateLocalStorage(id) {
+  const newTxt = document.getElementById(`text-${id}`).innerText;
+  const commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
+  commentsFromLocalStorage.forEach((mc) => {
+    if (mc.id == id) {
+      mc.content = newTxt;
+    } else {
+      mc.replies.forEach((rc) => {
+        if (rc.id == id) {
+          rc.content = newTxt;
+        }
+      });
+    }
+  });
+  localStorage.setItem("comments", JSON.stringify(commentsFromLocalStorage));
+  loadComments(JSON.parse(localStorage.getItem("comments")));
+}
+
+// ! Function : Set data of user for adding comment
+(function setData() {
+  setImage();
+})();
+
+// ! Function : Set image
+function setImage() {
+  const avatar = document.getElementById("avatar");
+  const avatarInput = document.getElementById("avatarInput");
+
+  // * Open Input by click on image
+  avatar.addEventListener("click", () => avatarInput.click());
+
+  // * Get the image
+  avatarInput.addEventListener("change", (e) => {
+    const img = e.target.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", (e) => {
+      console.log(e.target);
+      avatar.src = e.target.result;
+    });
+    reader.readAsDataURL(img);
+  });
 }
