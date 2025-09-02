@@ -78,6 +78,13 @@ h1 {
 .text {
   font-size: 17px;
   color: rgb(64, 64, 64);
+  overflow: auto;
+   scrollbar-width: none;
+}
+
+
+.text::-webkit-scrollbar {
+  display: none;
 }
 
 #mainReplyBtn {
@@ -97,6 +104,7 @@ h1 {
 }
 
 #model-delete {
+  width: 350px;
   transform: translate(-50%, -100%);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
@@ -116,9 +124,21 @@ h1 {
   padding: 10px;
   border: 1.8px solid rgb(135 71 159 / 58%);
   border-radius: 7px;
-  margin-bottom: 45px;
+  margin-bottom: 10px;
   outline: none;
   resize: none;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+textarea::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .edit-text {
+    margin-bottom: 45px;
+  }
 }
 
 .update-btn {

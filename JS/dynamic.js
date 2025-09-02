@@ -55,7 +55,7 @@ function loadComments(commentsFromLocalStorage) {
     _date = commentsFromLocalStorage[c]["createdAt"];
     _text = commentsFromLocalStorage[c]["content"];
     _score = commentsFromLocalStorage[c]["score"];
-    _src = `images/avatars/image-${_name}.webp`;
+    _src = commentsFromLocalStorage[c].user["image"]["png"];
     allComments.appendChild(createMainComment(_id, _type, _score, _src, _name, _date, _text));
 
     // Loop : Replies "sub-comments"
@@ -67,7 +67,7 @@ function loadComments(commentsFromLocalStorage) {
       _date = replies[r]["createdAt"];
       _text = replies[r]["content"];
       _score = replies[r]["score"];
-      _src = `images/avatars/image-${_name}.webp`;
+      _src = replies[r].user["image"]["png"];
       allComments.appendChild(createMainComment(_id, _type, _score, _src, _name, _date, _text));
     }
   }
@@ -105,7 +105,7 @@ function createMainComment(id, type, score, src, name, date, text) {
         </div>
         <div class="col-12 col-md-11 order-1 order-md-2 ">
           <div class="info d-flex align-items-center gap-4">
-            <img src="${src}" alt="perosn" width="45" height="45" loading="lazy">
+            <img src="${src}" alt="perosn" width="45" height="45" loading="lazy" class="rounded-circle">
             <span class="name fw-bolder">${name}</span>
             <span class="create">${date}</span>
           </div>
@@ -140,13 +140,7 @@ function actions() {
   editIcon.forEach((b) => b.addEventListener("click", editComment));
 }
 
-// ! Function : Add new comment
-// newCommentText.addEventListener("change", (e) => {
-//   newComment = e.target.value;
-//   // e.target.value = "";
-// });
-
-// Function : Add comment to page
+// ! Function : Add new comment to page
 mainReplyBtn.addEventListener("click", addCommentToPage);
 function addCommentToPage() {
   if (newCommentText.value.trim() != "") {
@@ -156,12 +150,19 @@ function addCommentToPage() {
       createdAt: "Now",
       score: 0,
       user: {
-        username: "ss",
+        image: {
+          png: avatar.src,
+        },
+        username: (username.value ? username.value : "Unknown"),
       },
       replies: [],
     };
 
+
     newCommentText.value = "";
+    username.value = ""
+    avatar.src = '/images/avatars/image-unknown.webp'
+
 
     let updatedComments = JSON.parse(localStorage.getItem("comments"));
     updatedComments.push(objComment);
@@ -291,7 +292,7 @@ function editComment() {
   const txt = textBox.innerText;
   const option = document.getElementById(`option-${this.id}`);
   textBox.innerHTML = `<textarea name="text" id="edit-text-${this.id}" class="edit-text">${txt}</textarea>`;
-  option.innerHTML = `<button class="update-btn btn fw-bolder" onclick="updateComment(${this.id})">Update</button>`;
+  option.innerHTML = `<button class="update-btn fw-bolder border-0 bg-transparent" onclick="updateComment(${this.id})">Update</button>`;
 }
 
 // ! Function : Update the comment
@@ -343,7 +344,6 @@ function setImage() {
     const img = e.target.files[0];
     const reader = new FileReader();
     reader.addEventListener("load", (e) => {
-      console.log(e.target);
       avatar.src = e.target.result;
     });
     reader.readAsDataURL(img);
