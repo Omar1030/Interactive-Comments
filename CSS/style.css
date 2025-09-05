@@ -29,10 +29,11 @@ h1 {
   box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
 }
 
-.reply {
+.replyBtn {
   color: rgb(135, 71, 159);
   top: 10px;
 }
+
 .options {
   background-color: rgb(224, 202, 231);
   color: rgb(135, 71, 159);
@@ -44,7 +45,6 @@ h1 {
   justify-content: space-evenly;
   padding: 7px 0px;
 }
-
 .options svg {
   font-size: 17px;
 }
@@ -79,15 +79,13 @@ h1 {
   font-size: 17px;
   color: rgb(64, 64, 64);
   overflow: auto;
-   scrollbar-width: none;
+  scrollbar-width: none;
 }
-
-
 .text::-webkit-scrollbar {
   display: none;
 }
 
-#mainReplyBtn {
+#sendCommentBtn {
   background-color: rgb(135, 71, 159);
   color: white;
   outline: none;
@@ -130,8 +128,7 @@ h1 {
   overflow: auto;
   scrollbar-width: none;
 }
-
-textarea::-webkit-scrollbar {
+.edit-text::-webkit-scrollbar {
   display: none;
 }
 
@@ -143,4 +140,9 @@ textarea::-webkit-scrollbar {
 
 .update-btn {
   color: rgb(135, 71, 159);
+}
+
+.newReply {
+  background-color: white;
+  width: 660px;
 }

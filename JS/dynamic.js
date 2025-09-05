@@ -1,7 +1,7 @@
 // ? DOM Elements
 const containerForComments = document.getElementById("containerForComments");
 const newCommentText = document.getElementById("newCommentText");
-const mainReplyBtn = document.getElementById("mainReplyBtn");
+const sendCommentBtn = document.getElementById("sendCommentBtn");
 const modelDelete = document.getElementById("model-delete");
 const overlay = document.getElementById("overlay");
 const deleteBtns = document.getElementById("deleteBtns");
@@ -87,10 +87,11 @@ function createMainComment(id, type, score, src, name, date, text) {
   let commentArticle = document.createElement("articel");
   commentArticle.dataset.score = score;
   commentArticle.setAttribute("id", id);
+  commentArticle.setAttribute("class", "article-comment");
   commentArticle.classList.add("comment", "d-block", "mb-3");
   commentArticle.style.maxWidth = `${type ? "770px" : "660px"}`;
   commentArticle.innerHTML = ` 
-      <button id="${id}" class="reply btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
+      <button id="${id}" class="replyBtn btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
       <div id="option-${id}" class="options position-absolute d-flex gap-3">
         <div id="${id}" class="editIcon"><i class="fa-solid fa-pen-to-square"></i></div>
         <div class="deleteIcon"><i class="fa-solid fa-trash"></i></div>
@@ -116,7 +117,7 @@ function createMainComment(id, type, score, src, name, date, text) {
   return commentArticle;
 }
 
-// ! Function : Actions => Update - Delete - Edit
+// ! Function : Actions => Update - Delete - Edit - Reply
 function actions() {
   // UpBtn - downBtn - scores - comments - deleteBtn
   let upBtn = document.querySelectorAll(".upBtn");
@@ -126,6 +127,7 @@ function actions() {
   let deleteIcon = document.querySelectorAll(".deleteIcon");
   let editIcon = document.querySelectorAll(".editIcon");
   options = document.querySelectorAll(".options");
+  let replyBtn = document.querySelectorAll(".replyBtn");
 
   // Up comment
   upBtn.forEach((b) => b.addEventListener("click", rankComment));
@@ -138,10 +140,13 @@ function actions() {
 
   // Edit comment
   editIcon.forEach((b) => b.addEventListener("click", editComment));
+
+  // Reply
+  replyBtn.forEach((b) => b.addEventListener("click", replyToComment));
 }
 
 // ! Function : Add new comment to page
-mainReplyBtn.addEventListener("click", addCommentToPage);
+sendCommentBtn.addEventListener("click", addCommentToPage);
 function addCommentToPage() {
   if (newCommentText.value.trim() != "") {
     let objComment = {
@@ -153,16 +158,14 @@ function addCommentToPage() {
         image: {
           png: avatar.src,
         },
-        username: (username.value ? username.value : "Unknown"),
+        username: username.value ? username.value : "Unknown",
       },
       replies: [],
     };
 
-
     newCommentText.value = "";
-    username.value = ""
-    avatar.src = '/images/avatars/image-unknown.webp'
-
+    username.value = "";
+    avatar.src = "/images/avatars/image-unknown.webp";
 
     let updatedComments = JSON.parse(localStorage.getItem("comments"));
     updatedComments.push(objComment);
@@ -326,6 +329,44 @@ function updateLocalStorage(id) {
   loadComments(JSON.parse(localStorage.getItem("comments")));
 }
 
+// * Reply
+// ! Function : Reply to the comment
+function replyToComment(e) {
+  let newReply = document.createElement("div");
+  newReply.classList.add("newReply", "row", "py-4", "px-2", "rounded-3", "mb-3");
+  newReply.innerHTML = `
+        <div class="col-12 col-md-1 order-2 order-md-1 text-center pt-3 pt-md-0">
+
+          <article class="vote d-flex flex-row flex-md-column justify-content-evenly align-items-center gap-4 rounded-4 fw-bold text-light">
+            <button id="1" class="upBtn btn">+</button>
+            <span id="1" class="score">0</span>
+            <button id="1" class="downBtn btn">-</button>
+          </article>
+
+        </div>
+
+        <div class="col-12 col-md-11 order-1 order-md-2 ">
+
+          <div class="info d-flex align-items-center gap-4">
+            <img src="./images/avatars/image-maxblagun.png" alt="perosn" width="45" height="45" loading="lazy" class="rounded-circle">
+            <span class="name fw-bolder">maxblagun</span>
+            <span class="create">2 weeks ago</span>
+          </div>
+
+          <div id="text-1" class="text mt-lg-3 mt-3">
+            <textarea name="text" id="edit-text-1" class="edit-text"></textarea>
+          </div>
+          
+          <button class="addNewReply">Reply</button>
+
+        </div>`;
+  e.target.closest(".article-comment").insertAdjacentElement("afterend", newReply);
+
+  let commentsFromLocalStorage = JSON.parse(localStorage)
+
+}
+
+// * Data of user for new comment
 // ! Function : Set data of user for adding comment
 (function setData() {
   setImage();
