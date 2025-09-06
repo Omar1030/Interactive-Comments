@@ -17,6 +17,7 @@ let scores;
 let comments;
 let tagetIconTrash;
 let options;
+let idNewRelpy = 0;
 
 // ! Function : Fetch Comments & Store it in local storage
 async function fetchComments(url) {
@@ -86,9 +87,9 @@ function loadComments(commentsFromLocalStorage) {
 function createMainComment(id, type, score, src, name, date, text) {
   let commentArticle = document.createElement("articel");
   commentArticle.dataset.score = score;
+  commentArticle.dataset.replyId = 0;
   commentArticle.setAttribute("id", id);
-  commentArticle.setAttribute("class", "article-comment");
-  commentArticle.classList.add("comment", "d-block", "mb-3");
+  commentArticle.classList.add("article-comment", "comment", "d-block", "mb-3");
   commentArticle.style.maxWidth = `${type ? "770px" : "660px"}`;
   commentArticle.innerHTML = ` 
       <button id="${id}" class="replyBtn btn position-absolute end-0 "><i class="fa-solid fa-reply me-2"></i>Reply</button>
@@ -107,7 +108,7 @@ function createMainComment(id, type, score, src, name, date, text) {
         <div class="col-12 col-md-11 order-1 order-md-2 ">
           <div class="info d-flex align-items-center gap-4">
             <img src="${src}" alt="perosn" width="45" height="45" loading="lazy" class="rounded-circle">
-            <span class="name fw-bolder">${name}</span>
+            <span id="name-${id}" class="name fw-bolder">${name}</span>
             <span class="create">${date}</span>
           </div>
           <div id="text-${id}" class="text mt-lg-3 mt-3">${text}</div>
@@ -360,10 +361,48 @@ function replyToComment(e) {
           <button class="addNewReply">Reply</button>
 
         </div>`;
-  e.target.closest(".article-comment").insertAdjacentElement("afterend", newReply);
 
-  let commentsFromLocalStorage = JSON.parse(localStorage)
+  let articleComment = e.target.closest(".article-comment");
+  let articleId = articleComment.id;
+  let articleName = document.getElementById(`name-${articleId}`).innerText;
 
+  articleComment.insertAdjacentElement("afterend", newReply);
+
+  let commentsFromLocalStorage = JSON.parse(localStorage.getItem("comments"));
+  updateLocalAfterReply(commentsFromLocalStorage, articleId, Number(articleComment.dataset.replyId), "This is the text for reply", articleName);
+}
+
+// ! Function Update LocalStorage after insert reply
+function updateLocalAfterReply(commentsFromLocalStorage, articleId, replyId, text, articleName) {
+  let objReply = {
+    id: replyId++,
+    content: text,
+    createdAt: "Now",
+    replyingTo: articleName,
+    score: 0,
+    user: {
+      image: {
+        png: "../images/avatars/image-unknown.webp",
+      },
+      username: "Unknown",
+    },
+  };
+
+  // commentsFromLocalStorage.forEach((cm) => {
+  //   if (cm.id == articleId) {
+  //     cm.replies.push(objReply);
+  //   } else {
+  //     cm.replies.forEach((cmr) => {
+  //       if (cmr.id == articleId) {
+  //         cmr.replies.push(objReply);
+  //       }
+  //     });
+  //   }
+  // });
+
+  console.log(commentsFromLocalStorage);
+
+  localStorage.setItem("comments", JSON.stringify(commentsFromLocalStorage));
 }
 
 // * Data of user for new comment
